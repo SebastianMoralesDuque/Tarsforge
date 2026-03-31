@@ -2,7 +2,7 @@
 
 > **Describe tu negocio. Un equipo de agentes IA genera tu landing page en tiempo real.** TarsForge orquesta múltiples agentes especializados — creados dinámicamente por IA según tu proyecto — para diseñar, escribir y construir landing pages profesionales.
 
-[![Demo en Vivo](https://img.shields.io/badge/🚀-Demo%20en%20Vivo-00ff9d?style=for-the-badge&logo=vercel&logoColor=black)](http://194.26.100.192)
+[![Demo en Vivo](https://img.shields.io/badge/🚀-Demo%20en%20Vivo-00ff9d?style=for-the-badge&logo=vercel&logoColor=black)](https://vps23087.cubepath.net/)
 [![React 19](https://img.shields.io/badge/React-19-61dafb?style=for-the-badge&logo=react)](https://react.dev/)
 [![Vite 8](https://img.shields.io/badge/Vite-8-646cff?style=for-the-badge&logo=vite)](https://vitejs.dev/)
 [![Tailwind CSS 4](https://img.shields.io/badge/Tailwind-4-06b6d4?style=for-the-badge&logo=tailwindcss)](https://tailwindcss.com/)
@@ -72,7 +72,7 @@ Selecciona las habilidades que quieres potenciar antes de generar:
 
 ### ¿Cómo se utilizó CubePath?
 
-1. **Provisionamiento de VPS** — Se obtuvo un servidor virtual dedicado (VPS) con IP `194.26.100.192/32` a través de la plataforma CubePath, utilizando los créditos de la hackatón.
+1. **Provisionamiento de VPS** — Se obtuvo un servidor virtual dedicado (VPS) a través de la plataforma CubePath, utilizando los créditos de la hackatón.
 
 2. **Configuración de Ollama Cloud** — Gracias al acceso root del VPS proporcionado por CubePath, se instaló y configuró **Ollama** directamente en el servidor, permitiendo ejecutar modelos de IA de código abierto en la nube sin depender de APIs externas de pago.
 
@@ -175,7 +175,7 @@ src/
 
 > **Proyecto desarrollado para la Hackatón CubePath 2026**
 >
-> Demo en vivo: [http://194.26.100.192](http://194.26.100.192)
+> Demo en vivo: [https://vps23087.cubepath.net/](https://vps23087.cubepath.net/)
 
 ---
 

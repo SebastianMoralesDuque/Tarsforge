@@ -17,23 +17,32 @@ export function getBuilderPrompt(blueprint, assets, activeSkills, promptOriginal
     if (validColors) assetsInstructions += `\\n- Se proporcionaron los siguientes colores de marca: ${validColors}. Úsalos como base o acentos principales en tu CSS.`;
     if (assets.referenceText) assetsInstructions += `\\n- Usa este texto como contexto clave o intégralo visualmente si aplica: ${assets.referenceText}`;
 
-    if (assets.hasUnsplash && assets.heroImage) {
-      assetsInstructions += `\\n\\n🖼️ IMÁGENES DE UNSPLASH DISPONIBLES PARA ESTA LANDING:`;
-      assetsInstructions += `\\n- 🔥 HERO IMAGE (OBLIGATORIA PARA EL HERO SECTION):`;
-      assetsInstructions += `\\n  URL: "${assets.heroImage.url}"`;
-      assetsInstructions += `\\n  ALT: "${assets.heroImage.alt}"`;
-      assetsInstructions += `\\n  AUTOR: "${assets.heroImage.author}"`;
-      assetsInstructions += `\\n- CRITICO: El HERO SECTION debe usar esta imagen OBLIGATORIAMENTE.`;
+    if (assets.hasUnsplash && assets.heroImage && !assets.heroImage.isFallback) {
+      assetsInstructions += `\n\n🖼️ IMÁGENES DE UNSPLASH DISPONIBLES PARA ESTA LANDING:`;
+      assetsInstructions += `\n- 🔥 HERO IMAGE (OBLIGATORIA PARA EL HERO SECTION):`;
+      assetsInstructions += `\n  URL: "${assets.heroImage.url}"`;
+      assetsInstructions += `\n  ALT: "${assets.heroImage.alt}"`;
+      assetsInstructions += `\n  AUTOR: "${assets.heroImage.author}"`;
+      assetsInstructions += `\n- CRITICO: El HERO SECTION debe usar esta imagen OBLIGATORIAMENTE.`;
       
       if (assets.unsplashImages && assets.unsplashImages.length > 0) {
-        assetsInstructions += `\\n- 📷 IMÁGENES SECUNDARIAS (usa en otras secciones):`;
-        assets.unsplashImages.forEach((img, i) => {
-          assetsInstructions += `\\n  Imagen ${i + 2}: URL="${img.url}" ALT="${img.alt}"`;
-        });
+        const validImages = assets.unsplashImages.filter(img => !img.isFallback);
+        if (validImages.length > 0) {
+          assetsInstructions += `\n- 📷 IMÁGENES SECUNDARIAS (usa en otras secciones):`;
+          validImages.forEach((img, i) => {
+            assetsInstructions += `\n  Imagen ${i + 2}: URL="${img.url}" ALT="${img.alt}"`;
+          });
+        }
+        const fallbackImages = assets.unsplashImages.filter(img => img.isFallback);
+        if (fallbackImages.length > 0) {
+          assetsInstructions += `\n- ⚠️ ALGUNAS IMÁGENES NO ESTÁN DISPONIBLES. Genera placeholders visuales con CSS puro (gradientes, patrones, formas geométricas) para las secciones que necesiten imagen.`;
+        }
       }
       
-      assetsInstructions += `\\n  Usa: <img src="URL" alt="DESCRIPCION" loading="lazy">`;
-      assetsInstructions += `\\n  La primera imagen (hero) debe tener loading="eager" y fetchpriority="high"`;
+      assetsInstructions += `\n  Usa: <img src="URL" alt="DESCRIPCION" loading="lazy">`;
+      assetsInstructions += `\n  La primera imagen (hero) debe tener loading="eager" y fetchpriority="high"`;
+    } else if (assets.hasUnsplash && assets.heroImage && assets.heroImage.isFallback) {
+      assetsInstructions += `\n\n⚠️ LAS IMÁGENES DE UNSPLASH NO ESTÁN DISPONIBLES. Debes generar placeholders visuales atractivos usando SOLO CSS puro (gradientes, patrones, formas geométricas, clip-path, pseudo-elementos ::before/::after) para todas las secciones que normalmente llevarían imágenes. NO uses URLs externas para imágenes.`;
     }
   }
 

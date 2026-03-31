@@ -17,6 +17,23 @@ async function fetchWithTimeout(url, options = {}, timeout = 10000) {
   }
 }
 
+async function validateImageUrl(url, timeout = 8000) {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    const res = await fetch(url, {
+      method: 'HEAD',
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+    if (!res.ok) return false;
+    const contentType = res.headers.get('content-type');
+    return contentType && contentType.startsWith('image/');
+  } catch {
+    return false;
+  }
+}
+
 export async function getImage(keyword, retries = 3) {
   const encodedKeyword = encodeURIComponent(keyword);
   
@@ -42,8 +59,14 @@ export async function getImage(keyword, retries = 3) {
         continue;
       }
 
+      const imageUrl = data.urls.regular;
+      const isValid = await validateImageUrl(imageUrl);
+      if (!isValid) {
+        continue;
+      }
+
       return {
-        url: data.urls.regular,
+        url: imageUrl,
         alt: data.alt_description || keyword,
         author: data.user?.name || 'Unknown',
         isFallback: false,
@@ -84,8 +107,18 @@ export async function getHeroImage(keywords) {
 
     const data = await res.json();
 
+    if (!data || !data.urls || !data.urls.regular) {
+      throw new Error('Invalid Unsplash response');
+    }
+
+    const imageUrl = data.urls.regular;
+    const isValid = await validateImageUrl(imageUrl);
+    if (!isValid) {
+      throw new Error('Image URL validation failed');
+    }
+
     return {
-      url: data.urls.regular,
+      url: imageUrl,
       alt: data.alt_description || `${primaryKeyword} ${secondaryKeyword}`,
       author: data.user?.name || 'Unknown',
       isFallback: false
