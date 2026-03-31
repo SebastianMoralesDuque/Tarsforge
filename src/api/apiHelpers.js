@@ -10,7 +10,6 @@ export async function waitForDelay() {
     const elapsed = now - lastRequestEndTime;
     if (elapsed < GLOBAL_API_DELAY) {
         const wait = GLOBAL_API_DELAY - elapsed;
-        console.log(`[API THROTTLE] Waiting ${Math.round(wait / 1000)}s before next request...`);
         await new Promise(r => setTimeout(r, wait));
     }
 }
@@ -29,23 +28,18 @@ export async function fetchWithRetry(url, options, retries = 3) {
     let lastError = null;
     for (let attempt = 0; attempt <= retries; attempt++) {
         try {
-            console.log(`[API CALL Attempt ${attempt + 1}/${retries + 1}] a ${url}`);
             const res = await fetch(url, options);
             if (res.ok) return res;
 
-            console.warn(`[API ERROR ${res.status}] intento ${attempt + 1} fallido.`);
-            
             if (shouldRetry(res.status, attempt, retries)) {
-                console.warn(`API ${res.status} Error. Reintentando inmediatamente...`);
                 continue;
             }
 
             return res;
         } catch (error) {
             lastError = error;
-            console.error(`[NETWORK ERROR] intento ${attempt + 1}:`, error.message);
             if (attempt < retries) {
-                console.warn(`Reintentando red inmediatamente...`);
+                // Retry immediately
             }
         }
     }

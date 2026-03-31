@@ -23,12 +23,6 @@ export async function callOpenAI(apiKey, systemPrompt, userMessage, isJSON = fal
     const data = await res.json();
     const rawResponse = data?.choices?.[0]?.message?.content || '';
 
-    console.log(`[CALL_OPENAI SUCCESS] Sistema: ${systemPrompt.split('\n')[0].substring(0, 50)}...`, {
-        prompt_length: systemPrompt.length + userMessage.length,
-        response_length: rawResponse.length,
-        response_preview: rawResponse.substring(0, 200) + '...',
-        full_response: rawResponse
-    });
     return rawResponse;
 }
 
@@ -83,12 +77,6 @@ export async function streamOpenAI(apiKey, systemPrompt, userMessage, onChunk, i
             }
         }
     }
-
-    console.log(`[STREAM_OPENAI FINISHED] Sistema: ${systemPrompt.split('\n')[0].substring(0, 50)}...`, {
-        total_length: fullText.length,
-        preview_end: fullText.slice(-100),
-        full_response: fullText
-    });
 
     return fullText;
 }

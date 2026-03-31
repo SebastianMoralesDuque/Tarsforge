@@ -1,7 +1,7 @@
 import { useApp } from '../context/AppContext';
 
 export default function Navbar({ children, showLogo = true }) {
-    const { setSettingsOpen, apiKey, setPage, runs, page, isProMode, toggleProMode } = useApp();
+    const { setPage, runs, page, isProMode, toggleProMode } = useApp();
     const hasRuns = runs.length > 0;
 
     return (

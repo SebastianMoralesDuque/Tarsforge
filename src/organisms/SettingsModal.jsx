@@ -3,14 +3,9 @@ import { useApp } from '../context/AppContext';
 import ApiKeyInput from '../molecules/ApiKeyInput';
 
 export default function SettingsModal() {
-    const { apiKey, setApiKey, setSettingsOpen, activeApi, setActiveApi } = useApp();
+    const { apiKey, setApiKey, setSettingsOpen } = useApp();
     const [draftKey, setDraftKey] = useState(apiKey);
 
-    const envModalKey = import.meta.env.VITE_MODAL_API_KEY;
-    const envGeminiKey = import.meta.env.VITE_GEMINI_API_KEY;
-
-    const hasModalEnv = envModalKey && envModalKey !== 'your_key_here';
-    const hasGeminiEnv = envGeminiKey && envGeminiKey !== 'your_key_here';
 
     function handleSave() {
         setApiKey(draftKey.trim());

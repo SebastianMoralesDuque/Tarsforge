@@ -1,32 +1,8 @@
-import { useApp } from '../context/AppContext';
 import PromptInput from '../organisms/PromptInput';
 import Navbar from '../organisms/Navbar';
 
 
 export default function ConfigPage() {
-    const { apiKey, activeApi, setActiveApi } = useApp();
-    const showApiWarning = !apiKey || apiKey.length < 10;
-
-    const setGemini = () => setActiveApi('gemini');
-    const setModal = () => setActiveApi('modal');
-
-    const mode = activeApi;
-
-    const pillStyle = (active, fromColor, toColor, glowColor) => ({
-        padding: '6px 18px',
-        borderRadius: '9999px',
-        fontSize: '0.8rem',
-        fontWeight: 600,
-        border: 'none',
-        cursor: 'pointer',
-        transition: 'all 0.2s ease',
-        background: active
-            ? `linear-gradient(135deg, ${fromColor} 0%, ${toColor} 100%)`
-            : 'transparent',
-        color: active ? (fromColor === '#4ade80' ? '#020617' : '#fff') : 'rgba(255,255,255,0.5)',
-        boxShadow: active ? `0 0 16px ${glowColor}` : 'none',
-    });
-
     return (
         <div className="min-h-screen bg-[var(--bg-base)] bg-mesh bg-dots flex flex-col pt-20">
             <Navbar />

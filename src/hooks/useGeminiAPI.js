@@ -169,7 +169,6 @@ function fixMalformedJSON(text) {
 
 function parseJSON(text) {
     if (!text || typeof text !== 'string') {
-        console.error('[parseJSON] Invalid input:', { type: typeof text, length: text?.length });
         return null;
     }
 
@@ -200,8 +199,7 @@ function parseJSON(text) {
         }
 
         return tryParse(preprocessed.trim());
-    } catch (err) {
-        console.error('[parseJSON] Parse error:', err.message);
+    } catch {
         return null;
     }
 }
@@ -222,7 +220,6 @@ export function useGeminiAPI() {
     const callAgent = useCallback(
         async (systemPrompt, userMessage, model = null) => {
             await waitForDelay();
-            console.log(`${activeApi.toUpperCase()} API MODE: callAgent`, systemPrompt.slice(0, 50));
             const apiKey = getApiKey();
             const isMetaAgent = systemPrompt.toLowerCase().includes('arquitecto supremo') ||
                 systemPrompt.toLowerCase().includes('meta-agent');
@@ -250,7 +247,6 @@ export function useGeminiAPI() {
     const streamAgent = useCallback(
         async (systemPrompt, userMessage, onChunk, isJSON = true, model = null) => {
             await waitForDelay();
-            console.log(`${activeApi.toUpperCase()} API MODE: streamAgent`, systemPrompt.slice(0, 50));
             const apiKey = getApiKey();
             let result;
             if (activeApi === 'modal') {

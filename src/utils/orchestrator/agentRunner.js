@@ -18,7 +18,6 @@ export async function runAgentWithRetry({
                 agent.systemPrompt,
                 userMessage,
                 (chunk, full) => {
-                    console.log(`[AGENT STREAM CHUNK] ${agent.name}:`, { chunk, fullLength: full.length });
                     const role = agent.role || agent.specialty || 'default';
                     updateAgent(runIndex, agent.id, {
                         streamText: sanitizeStreamText(full, role),
@@ -29,8 +28,6 @@ export async function runAgentWithRetry({
 
             const fullText = typeof result === 'string' ? result : result.text;
             const usageMetadata = typeof result === 'object' ? result.usageMetadata : null;
-            console.log(`[AGENT FINAL RESPONSE] ${agent.name} (${agent.role}):`, fullText);
-            console.log(`[AGENT TOKEN USAGE] ${agent.name}:`, usageMetadata);
 
             updateAgent(runIndex, agent.id, {
                 state: 'done',
@@ -43,18 +40,15 @@ export async function runAgentWithRetry({
             return onComplete(result);
         } catch (err) {
             lastError = err;
-            console.warn(`Agent ${agent.name} attempt ${attempt + 1} failed:`, err.message);
 
             if (attempt < retries) {
                 updateAgent(runIndex, agent.id, {
                     streamText: 'Reintentando conexión...',
                 });
-                console.log(`[ORCHESTRATOR] Reintentando para ${agent.name}... (Intento ${attempt + 1}/${retries})`);
             }
         }
     }
 
-    console.error(`Agent ${agent.name} finally failed:`, lastError);
     updateAgent(runIndex, agent.id, {
         state: 'error',
         streamText: 'Error temporal. Por favor intenta de nuevo.',
@@ -65,8 +59,6 @@ export async function runAgentWithRetry({
 
 function downloadAIResponseLog(agent, userMessage, fullResponse, usageMetadata) {
     try {
-        console.log('[DOWNLOAD] Attempting to download log for agent:', agent?.name, agent?.role);
-        
         const log = formatAIResponseLog({
             agentName: agent?.name || 'unknown',
             agentRole: agent?.role || agent?.specialty || 'unknown',
@@ -79,15 +71,10 @@ function downloadAIResponseLog(agent, userMessage, fullResponse, usageMetadata) 
             timestamp: getTimestamp()
         });
         
-        console.log('[DOWNLOAD] Log content length:', log.length);
-        
         const filename = `tarsforge-${(agent?.role || agent?.id || 'agent').replace(/\s+/g, '-')}-${getTimestamp()}.txt`;
-        console.log('[DOWNLOAD] Filename:', filename);
         
         downloadTextFile(log, filename);
-        console.log('[DOWNLOAD] Success - file should download');
-    } catch (err) {
-        console.error('[DOWNLOAD] Failed to download response log:', err);
-        console.error('[DOWNLOAD] Stack:', err.stack);
+    } catch {
+        // Download failed silently
     }
 }

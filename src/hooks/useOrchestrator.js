@@ -44,7 +44,6 @@ export function useOrchestrator() {
                 const buildRealHtml = async () => {
                     let imageAssets = {};
                     if (imagePromise) {
-                        console.log("[ORCHESTRATOR] Esperando imágenes de Unsplash...");
                         updateRun(runIndex, { previewStage: 'fetching-images' });
                         imageAssets = await imagePromise;
                     }
@@ -109,8 +108,6 @@ export function useOrchestrator() {
                     if (!context.streamDone) await sleep(500); 
                 }
 
-                console.log(`[ORCHESTRATOR] Visualización de agentes completada.`);
-
                 if (!context.streamDone) {
                     updateRun(runIndex, { previewStage: 'assembling' });
                     const compilerAgentId = 'fake-compiler-agent';
@@ -164,11 +161,9 @@ export function useOrchestrator() {
 
                 // Esperamos que se resuelva si aún le falta
                 const htmlOutput = await realBuildPromise;
-                console.log(`[ORCHESTRATOR] Builder finished. Raw output length: ${htmlOutput.length}`);
 
                 const cleanHtml = extractValidHTML(htmlOutput);
                 if (!cleanHtml) {
-                    console.error('[ORCHESTRATOR] Builder failed to generate valid HTML.');
                     throw new Error('Builder no generó HTML válido');
                 }
 
@@ -186,7 +181,6 @@ export function useOrchestrator() {
                     });
                 }
             } catch (err) {
-                console.error(`Run ${runIndex} failed:`, err);
                 updateRun(runIndex, { status: 'error' });
                 throw err;
             }
@@ -204,8 +198,6 @@ export function useOrchestrator() {
         try {
             const styleSeed = 'diseño profesional';
 
-            console.log('[ORCHESTRATOR] Iniciando Super-Orquestador y Unsplash en paralelo...');
-
             // Disparar promesa de imágenes en paralelo a la llamada 1
             const hasUnsplash = Boolean(import.meta.env.VITE_UNSPLASH);
             const useUnsplash = activeSkills?.includes('ai-image-generation') && hasUnsplash;
@@ -218,8 +210,7 @@ export function useOrchestrator() {
                     unsplashImages: otherImages,
                     hasUnsplash: true,
                     businessKeywords: keywords.slice(0, 3)
-                })).catch(err => {
-                    console.warn("[ORCHESTRATOR] Error obteniendo imágenes de Unsplash:", err.message);
+                })).catch(() => {
                     return {};
                 });
             }
@@ -228,15 +219,14 @@ export function useOrchestrator() {
             const superOrquestadorModel = import.meta.env.VITE_MODAL2_MODEL;
 
             // Call superOrquestador once per run IN PARALLEL so each run gets a unique plan
-            console.log(`[ORCHESTRATOR] Calling Super-Orquestador ${runCount} times in parallel...`);
+
             const superPlans = await Promise.all(
                 Array.from({ length: runCount }, (_, i) =>
                     callAgentJSON(
                         superOrquestadorSystem + `\n\nNOTA: Este es el run #${i + 1} de ${runCount}. Genera un enfoque DIFERENTE a los demás runs. Varía topología, agentes y estilo.`,
                         `Genera la planificación completa para esta landing page.`,
                         superOrquestadorModel
-                    ).catch(err => {
-                        console.error(`Super-Orquestador run ${i} failed:`, err);
+                    ).catch(() => {
                         return null;
                     })
                 )
@@ -246,7 +236,6 @@ export function useOrchestrator() {
             for (let i = 0; i < runCount; i++) {
                 const superPlan = superPlans[i];
                 if (!superPlan) {
-                    console.warn(`Run ${i} skipped: no valid plan from Super-Orquestador`);
                     continue;
                 }
 
@@ -296,8 +285,8 @@ export function useOrchestrator() {
             await Promise.all(
                 plan.runs.map((runPlan, i) => executeRun(i, runPlan, runPlan.rawResponse, imagePromise))
             );
-        } catch (err) {
-            console.error('Orchestration error:', err);
+        } catch {
+            // Orchestration error
         }
     }, [prompt, runCount, assets, callAgentJSON, initRuns, setPage, executeRun, activeSkills]);
 

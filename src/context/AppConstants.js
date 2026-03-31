@@ -1,12 +1,10 @@
 import { AGENT_STATES } from '../constants/agents';
 
-const envApiKey = import.meta.env.VITE_MODAL_API_KEY;
 const storageApiKey = localStorage.getItem('tarsforge_api_key') || '';
-const hasValidKey = (envApiKey && envApiKey !== 'your_key_here') || (storageApiKey && storageApiKey.length > 10);
 
 export const INITIAL_STATE = {
     // Navigation
-    page: hasValidKey ? 'config' : 'setup', // setup | config | run | compare
+    page: 'config', // setup | config | run | compare
 
     // API
     apiKey: storageApiKey,

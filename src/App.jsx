@@ -6,7 +6,7 @@ import ComparePage from './pages/ComparePage';
 
 
 export default function App() {
-  const { page, settingsOpen } = useApp();
+  const { page } = useApp();
 
   return (
     <>

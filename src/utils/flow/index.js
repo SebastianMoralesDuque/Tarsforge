@@ -32,7 +32,6 @@ export async function executeFlowGraph({
         const readyAgents = findReadyAgents(graph, executedAgents, pendingAgents);
         
         if (readyAgents.length === 0) {
-            console.warn(`[FLOW] No agents ready to execute. Remaining: ${Array.from(pendingAgents).join(', ')}`);
             break;
         }
         
@@ -86,7 +85,6 @@ export async function executeFlowGraph({
         
         const feedbackAgents = checkFeedbackLoops(flow, executedAgents, agentMap);
         if (feedbackAgents.length > 0) {
-            console.log(`[FLOW] Processing feedback loops for: ${feedbackAgents.join(', ')}`);
             for (const agentId of feedbackAgents) {
                 pendingAgents.add(agentId);
                 executedAgents.delete(agentId);

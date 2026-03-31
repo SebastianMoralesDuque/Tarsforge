@@ -33,14 +33,12 @@ export async function getImage(keyword, retries = 3) {
       );
 
       if (!res.ok) {
-        console.warn(`[ImageService] Unsplash attempt ${attempt + 1} failed: ${res.status}`);
         continue;
       }
 
       const data = await res.json();
 
       if (!data || !data.urls || !data.urls.regular) {
-        console.warn(`[ImageService] Unsplash invalid response attempt ${attempt + 1}`);
         continue;
       }
 
@@ -51,12 +49,11 @@ export async function getImage(keyword, retries = 3) {
         isFallback: false,
         keyword
       };
-    } catch (err) {
-      console.warn(`[ImageService] Unsplash attempt ${attempt + 1} error:`, err.message);
+    } catch {
+      // Unsplash attempt failed
     }
   }
 
-  console.log(`[ImageService] All Unsplash attempts failed for "${keyword}", using fallback`);
   return {
     url: `https://picsum.photos/1200/800?random=${Date.now()}`,
     alt: keyword,
@@ -93,8 +90,7 @@ export async function getHeroImage(keywords) {
       author: data.user?.name || 'Unknown',
       isFallback: false
     };
-  } catch (err) {
-    console.warn(`[ImageService] Hero image failed, using fallback:`, err.message);
+  } catch {
     return {
       url: `https://picsum.photos/1400/800?random=${Date.now()}`,
       alt: primaryKeyword,

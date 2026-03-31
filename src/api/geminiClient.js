@@ -24,21 +24,10 @@ export async function callGemini(apiKey, systemPrompt, userMessage, isJSON = fal
     });
 
     if (!res.ok) {
-        const errorText = await res.text().catch(() => '');
-        console.error(`Gemini API Error details:`, errorText);
         throw new Error(`Gemini API Error: ${res.status}`);
     }
     const data = await res.json();
     const rawResponse = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    const usageMetadata = data?.usageMetadata || null;
-
-    console.log(`[CALL_GEMINI SUCCESS] Sistema: ${systemPrompt.split('\n')[0].substring(0, 50)}...`, {
-        prompt_length: systemPrompt.length + userMessage.length,
-        response_length: rawResponse.length,
-        response_preview: rawResponse.substring(0, 200) + '...',
-        full_response: rawResponse,
-        usage_metadata: usageMetadata
-    });
 
     return rawResponse;
 }
@@ -72,7 +61,6 @@ export async function streamGemini(apiKey, systemPrompt, userMessage, onChunk, i
     const decoder = new TextDecoder();
     let fullText = '';
     let buffer = '';
-    let usageMetadata = null;
 
     while (true) {
         const { done, value } = await reader.read();
@@ -90,9 +78,6 @@ export async function streamGemini(apiKey, systemPrompt, userMessage, onChunk, i
                         fullText += text;
                         onChunk?.(text, fullText);
                     }
-                    if (json.usageMetadata) {
-                        usageMetadata = json.usageMetadata;
-                    }
                 } catch { /* ignore */ }
             }
         }
@@ -107,18 +92,8 @@ export async function streamGemini(apiKey, systemPrompt, userMessage, onChunk, i
                 fullText += text;
                 onChunk?.(text, fullText);
             }
-            if (json.usageMetadata) {
-                usageMetadata = json.usageMetadata;
-            }
         } catch { /* ignore */ }
     }
-
-    console.log(`[STREAM_GEMINI FINISHED] Sistema: ${systemPrompt.split('\n')[0].substring(0, 50)}...`, {
-        total_length: fullText.length,
-        preview_end: fullText.slice(-100),
-        full_response: fullText,
-        usage_metadata: usageMetadata
-    });
 
     return fullText;
 }

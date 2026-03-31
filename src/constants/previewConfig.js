@@ -25,7 +25,7 @@ export const CONSTRUCTION_SCRIPT = `
             if (!atomicTags.includes(tag)) {
               Array.from(node.children).forEach(child => walk(child));
             }
-          } catch(e) { console.warn('Error walking node:', e); }
+          } catch(e) { /* ignore */ }
         };
 
         walk(document.body);
@@ -108,7 +108,6 @@ export const CONSTRUCTION_SCRIPT = `
     setTimeout(() => {
       const hideStyle = document.getElementById('construction-hide-style');
       if (hideStyle) {
-        console.warn('Failsafe removing hide style');
         hideStyle.remove();
         document.body.style.opacity = '1';
       }
