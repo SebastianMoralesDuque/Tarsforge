@@ -59,6 +59,12 @@ REGLAS OBLIGATORIAS:
    - SI NO, INVENTA UN NOMBRE PROFESIONAL COHERENTE.
 7. TODOS los agentes DEBEN tener color '#hexadecimal' neon vibrante distinto.
 8. Genera EXACTAMENTE 10 secciones en 'sections'.
-9. El flujo DEBE incluir parallel, merge, y AL MENOS UNA condicion o feedback.
+9. El flujo DEBE incluir parallel, merge, y AL MENAS UNA condicion o feedback.
+10. CRITICO - TODOS LOS AGENTES DEBEN ESTAR CONECTADOS:
+    - CADA agente definido en "agents" DEBE aparecer en AL MENOS UNA conexion del "flow" (como "from" o como "to").
+    - NO se permiten agentes huérfanos o desconectados.
+    - El flujo SIEMPRE debe empezar con "from": "start" y terminar con "to": "end".
+    - Si defines N agentes, todos deben tener al menos una entrada y una salida en el grafo.
+    - Verifica ANTES de responder que no quede ningun agente sin conexion.
 `;
 }
