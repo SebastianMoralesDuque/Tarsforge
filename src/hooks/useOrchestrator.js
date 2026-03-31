@@ -42,7 +42,7 @@ export function useOrchestrator() {
 
                 // 1. ARRANCAR GENERACION REAL EN PARALELO INMEDIATAMENTE
                 const buildRealHtml = async () => {
-                    let imageAssets = {};
+                    let imageAssets = { hasUnsplash: false };
                     if (imagePromise) {
                         updateRun(runIndex, { previewStage: 'fetching-images' });
                         imageAssets = await imagePromise;
@@ -196,8 +196,6 @@ export function useOrchestrator() {
         }
 
         try {
-            const styleSeed = STYLE_SEEDS[Math.floor(Math.random() * STYLE_SEEDS.length)];
-
             // Disparar promesa de imágenes en paralelo a la llamada 1
             const hasUnsplash = Boolean(import.meta.env.VITE_UNSPLASH);
             const useUnsplash = activeSkills?.includes('ai-image-generation') && hasUnsplash;
@@ -215,21 +213,31 @@ export function useOrchestrator() {
                 });
             }
 
-            const superOrquestadorSystem = getSuperOrquestadorPrompt(prompt, assets, styleSeed, activeSkills);
+            // Call superOrquestador once per run IN PARALLEL so each run gets a unique plan
+            const styleSeeds = [];
+            const usedIndices = new Set();
+            while (styleSeeds.length < runCount && styleSeeds.length < STYLE_SEEDS.length) {
+                const idx = Math.floor(Math.random() * STYLE_SEEDS.length);
+                if (!usedIndices.has(idx)) {
+                    usedIndices.add(idx);
+                    styleSeeds.push(STYLE_SEEDS[idx]);
+                }
+            }
+
             const superOrquestadorModel = import.meta.env.VITE_MODAL_MODEL;
 
-            // Call superOrquestador once per run IN PARALLEL so each run gets a unique plan
-
             const superPlans = await Promise.all(
-                Array.from({ length: runCount }, (_, i) =>
-                    callAgentJSON(
-                        superOrquestadorSystem + `\n\nNOTA: Este es el run #${i + 1} de ${runCount}. Genera un enfoque DIFERENTE a los demás runs. Varía topología, agentes y estilo.`,
+                Array.from({ length: runCount }, (_, i) => {
+                    const seed = styleSeeds[i % styleSeeds.length];
+                    const systemPrompt = getSuperOrquestadorPrompt(prompt, assets, seed, activeSkills);
+                    return callAgentJSON(
+                        systemPrompt + `\n\nNOTA: Este es el run #${i + 1} de ${runCount}. Genera un enfoque DIFERENTE a los demás runs. Varía topología, agentes y estilo.`,
                         `Genera la planificación completa para esta landing page.`,
                         superOrquestadorModel
                     ).catch(() => {
                         return null;
-                    })
-                )
+                    });
+                })
             );
 
             const runs = [];
@@ -266,7 +274,7 @@ export function useOrchestrator() {
                 runs.push({
                     run_id: runId,
                     label: runLabel,
-                    style_seed: styleSeed,
+                    style_seed: styleSeeds[i % styleSeeds.length],
                     agents,
                     flow,
                     blueprint,

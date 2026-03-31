@@ -18,31 +18,33 @@ export function getBuilderPrompt(blueprint, assets, activeSkills, promptOriginal
     if (assets.referenceText) assetsInstructions += `\\n- Usa este texto como contexto clave o intégralo visualmente si aplica: ${assets.referenceText}`;
 
     if (assets.hasUnsplash && assets.heroImage && !assets.heroImage.isFallback) {
-      assetsInstructions += `\n\n🖼️ IMÁGENES DE UNSPLASH DISPONIBLES PARA ESTA LANDING:`;
-      assetsInstructions += `\n- 🔥 HERO IMAGE (OBLIGATORIA PARA EL HERO SECTION):`;
-      assetsInstructions += `\n  URL: "${assets.heroImage.url}"`;
-      assetsInstructions += `\n  ALT: "${assets.heroImage.alt}"`;
-      assetsInstructions += `\n  AUTOR: "${assets.heroImage.author}"`;
-      assetsInstructions += `\n- CRITICO: El HERO SECTION debe usar esta imagen OBLIGATORIAMENTE.`;
+      assetsInstructions += `\\n\\n🖼️ IMÁGENES DE UNSPLASH DISPONIBLES PARA ESTA LANDING:`;
+      assetsInstructions += `\\n- 🔥 HERO IMAGE (OBLIGATORIA PARA EL HERO SECTION):`;
+      assetsInstructions += `\\n  URL: "${assets.heroImage.url}"`;
+      assetsInstructions += `\\n  ALT: "${assets.heroImage.alt}"`;
+      assetsInstructions += `\\n  AUTOR: "${assets.heroImage.author}"`;
+      assetsInstructions += `\\n- CRITICO: El HERO SECTION debe usar esta imagen OBLIGATORIAMENTE.`;
       
       if (assets.unsplashImages && assets.unsplashImages.length > 0) {
         const validImages = assets.unsplashImages.filter(img => !img.isFallback);
         if (validImages.length > 0) {
-          assetsInstructions += `\n- 📷 IMÁGENES SECUNDARIAS (usa en otras secciones):`;
+          assetsInstructions += `\\n- 📷 IMÁGENES SECUNDARIAS (usa en otras secciones):`;
           validImages.forEach((img, i) => {
-            assetsInstructions += `\n  Imagen ${i + 2}: URL="${img.url}" ALT="${img.alt}"`;
+            assetsInstructions += `\\n  Imagen ${i + 2}: URL="${img.url}" ALT="${img.alt}"`;
           });
         }
         const fallbackImages = assets.unsplashImages.filter(img => img.isFallback);
         if (fallbackImages.length > 0) {
-          assetsInstructions += `\n- ⚠️ ALGUNAS IMÁGENES NO ESTÁN DISPONIBLES. Genera placeholders visuales con CSS puro (gradientes, patrones, formas geométricas) para las secciones que necesiten imagen.`;
+          assetsInstructions += `\\n- ⚠️ ALGUNAS IMÁGENES NO ESTÁN DISPONIBLES. Genera placeholders visuales con CSS puro (gradientes, patrones, formas geométricas) para las secciones que necesiten imagen.`;
         }
       }
       
-      assetsInstructions += `\n  Usa: <img src="URL" alt="DESCRIPCION" loading="lazy">`;
-      assetsInstructions += `\n  La primera imagen (hero) debe tener loading="eager" y fetchpriority="high"`;
+      assetsInstructions += `\\n  Usa: <img src="URL" alt="DESCRIPCION" loading="lazy">`;
+      assetsInstructions += `\\n  La primera imagen (hero) debe tener loading="eager" y fetchpriority="high"`;
     } else if (assets.hasUnsplash && assets.heroImage && assets.heroImage.isFallback) {
-      assetsInstructions += `\n\n⚠️ LAS IMÁGENES DE UNSPLASH NO ESTÁN DISPONIBLES. Debes generar placeholders visuales atractivos usando SOLO CSS puro (gradientes, patrones, formas geométricas, clip-path, pseudo-elementos ::before/::after) para todas las secciones que normalmente llevarían imágenes. NO uses URLs externas para imágenes.`;
+      assetsInstructions += `\\n\\n⚠️ LAS IMÁGENES DE UNSPLASH NO ESTÁN DISPONIBLES. Debes generar placeholders visuales atractivos usando SOLO CSS puro (gradientes, patrones, formas geométricas, clip-path, pseudo-elementos ::before/::after) para todas las secciones que normalmente llevarían imágenes. NO uses URLs externas para imágenes.`;
+    } else {
+      assetsInstructions += `\\n\\n⚠️ NO HAY IMÁGENES DISPONIBLES. Debes generar TODOS los elementos visuales con CSS PURO.`;
     }
   }
 
@@ -65,6 +67,14 @@ REGLAS DE OUTPUT:
 6. Haz la página Responsive mobile-first usando media queries, y da soporte nativo a DARK MODE mediante @media (prefers-color-scheme: dark).
 7. NO incluyas ningún texto, explicación ni bloque de código (markdown). Empieza con la etiqueta <!DOCTYPE html> y termina con </html>.
 8. PROHIBIDO usar SVG. NO generes NINGÚN elemento <svg>, ni <path>, ni inline SVG, ni data:image/svg+xml. Usa SOLO CSS puro para íconos, decoraciones, separadores y efectos visuales (bordes, gradients, box-shadow, pseudo-elementos ::before/::after, clip-path). Si necesitas un ícono, crea una versión CSS-only o usa emojis unicode.
+9. CRITICO - ELEMENTOS VISUALES OBLIGATORIOS: TODA landing page DEBE tener elementos visuales atractivos. Para secciones que normalmente llevarían imágenes (hero, features, about, testimonials, galería) DEBES generar fondos visuales con CSS puro. Usa combinaciones de:
+   - Gradientes lineales y radiales con colores de la paleta
+   - Patrones CSS con repeating-linear-gradient o repeating-radial-gradient
+   - Formas geométricas con clip-path (triángulos, polígonos, elipses)
+   - Pseudo-elementos ::before y ::after con formas decorativas
+   - Box-shadows múltiples para efectos de profundidad
+   - Animaciones CSS sutiles (float, pulse, shimmer)
+   - El hero DEBE tener un fondo visual impactante, nunca un color sólido plano.
 ${assetsInstructions}
 
 Sin texto. Sin markdown. Solo HTML.`;
