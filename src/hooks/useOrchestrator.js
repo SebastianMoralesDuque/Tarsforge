@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useApp } from '../context/AppContext';
 import { useGeminiAPI } from './useGeminiAPI';
-import { AGENT_STATES } from '../constants/agents';
+import { AGENT_STATES, STYLE_SEEDS } from '../constants/agents';
 import { getSuperOrquestadorPrompt, getBuilderPrompt } from '../utils/prompts';
 import { extractValidHTML } from '../utils/htmlExtractor';
 import { sleep } from '../utils/retryHelpers';
@@ -55,8 +55,8 @@ export function useOrchestrator() {
                     html = await streamAgent(
                         builderSystem,
                         `Genera el HTML completo de la landing page según el Blueprint proporcionado.`,
-                        (chunk, full) => { 
-                            html = full; 
+                        (chunk, full) => {
+                            html = full;
                             const progress = Math.min(99, 10 + (full.length / 500));
                             updateAgent(runIndex, 'builder-implicit', { progress });
                         },
@@ -64,9 +64,9 @@ export function useOrchestrator() {
                         builderModel
                     );
                     context.streamDone = true;
-                    
 
-                    
+
+
                     return html;
                 };
 
@@ -80,9 +80,9 @@ export function useOrchestrator() {
                         updateAgent(runIndex, agent.id, { state: AGENT_STATES.DONE, progress: 100 });
                         continue;
                     }
-                    const r = (agent.role || agent.name || '').toLowerCase();
+                    const r = (agent.role || agent.role || '').toLowerCase();
                     let finishVerb = 'completado su fase';
-                    
+
                     if (r.includes('arch') || r.includes('arqui')) finishVerb = 'estructurado la base neuronal';
                     else if (r.includes('design') || r.includes('disen')) finishVerb = 'diseñado el entorno visual';
                     else if (r.includes('copy') || r.includes('escrit')) finishVerb = 'redactado el contenido persuasivo';
@@ -99,13 +99,13 @@ export function useOrchestrator() {
                     const messages = [
                         `Configurando entorno del ${agent.role || 'agente'}...`,
                         `Analizando ${agent.specialty?.toLowerCase() || 'requerimientos'}...`,
-                        `Procesando lógica de ${agent.name || 'sistema'}...`,
+                        `Procesando lógica de ${agent.role || 'sistema'}...`,
                         `Sintetizando activos de ${agent.role || 'módulo'}...`,
-                        `¡${agent.name} ha ${finishVerb}!`
+                        `¡${agent.role} ha ${finishVerb}!`
                     ];
                     // 5 mensajes a 3000ms = 15 segundos por agente (+5s que antes)
                     await simulateAgentWork(runIndex, agent, messages, 3000, () => context.streamDone);
-                    if (!context.streamDone) await sleep(500); 
+                    if (!context.streamDone) await sleep(500);
                 }
 
                 if (!context.streamDone) {
@@ -142,7 +142,7 @@ export function useOrchestrator() {
                     });
 
                     updateAgent(runIndex, compilerAgentId, { state: AGENT_STATES.WORKING, progress: 20 });
-                    
+
                     const compileMsgs = ['Ensamblando...', 'Optimizando...', 'Renderizando estado en vivo...'];
                     for (let i = 0; i < compileMsgs.length; i++) {
                         if (context.streamDone) break;
@@ -196,13 +196,13 @@ export function useOrchestrator() {
         }
 
         try {
-            const styleSeed = 'diseño profesional';
+            const styleSeed = STYLE_SEEDS[Math.floor(Math.random() * STYLE_SEEDS.length)];
 
             // Disparar promesa de imágenes en paralelo a la llamada 1
             const hasUnsplash = Boolean(import.meta.env.VITE_UNSPLASH);
             const useUnsplash = activeSkills?.includes('ai-image-generation') && hasUnsplash;
             let imagePromise = null;
-            
+
             if (useUnsplash) {
                 const keywords = extractKeywordsFromPrompt(prompt);
                 imagePromise = getMultipleImages(keywords, 5).then(([heroImage, ...otherImages]) => ({
@@ -216,7 +216,7 @@ export function useOrchestrator() {
             }
 
             const superOrquestadorSystem = getSuperOrquestadorPrompt(prompt, assets, styleSeed, activeSkills);
-            const superOrquestadorModel = import.meta.env.VITE_MODAL2_MODEL;
+            const superOrquestadorModel = import.meta.env.VITE_MODAL_MODEL;
 
             // Call superOrquestador once per run IN PARALLEL so each run gets a unique plan
 
