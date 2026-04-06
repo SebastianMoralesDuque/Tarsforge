@@ -3,9 +3,10 @@ import { fetchWithRetry } from './apiHelpers';
 /**
  * Calls OpenAI-compatible API (LOCAL ONLY).
  */
-export async function callOpenAI(apiKey, systemPrompt, userMessage, isJSON = false, modelOverride = null) {
-    const baseUrl = import.meta.env.VITE_MODAL_BASE_URL || 'http://localhost:11434/v1/';
-    const model = modelOverride || import.meta.env.VITE_MODAL_MODEL || 'nemotron-3-super:cloud';
+export async function callOpenAI(apiKey, systemPrompt, userMessage, isJSON = false, modelOverride = null, model2 = false) {
+    const baseUrl = import.meta.env.VITE_MODAL_BASE_URL || '/api/ollama/';
+    const envModel = model2 ? import.meta.env.VITE_MODAL_MODEL2 : import.meta.env.VITE_MODAL_MODEL;
+    const model = modelOverride || envModel || 'nemotron-3-super:cloud';
     const url = `${baseUrl.endsWith('/') ? baseUrl : baseUrl + '/'}chat/completions`;
 
     const body = buildRequestBody(systemPrompt, userMessage, isJSON, model);
@@ -29,9 +30,10 @@ export async function callOpenAI(apiKey, systemPrompt, userMessage, isJSON = fal
 /**
  * Streaming version (LOCAL ONLY).
  */
-export async function streamOpenAI(apiKey, systemPrompt, userMessage, onChunk, isJSON = false, modelOverride = null) {
-    const baseUrl = import.meta.env.VITE_MODAL_BASE_URL || 'http://localhost:11434/v1/';
-    const model = modelOverride || import.meta.env.VITE_MODAL_MODEL || 'nemotron-3-super:cloud';
+export async function streamOpenAI(apiKey, systemPrompt, userMessage, onChunk, isJSON = false, modelOverride = null, model2 = false) {
+    const baseUrl = import.meta.env.VITE_MODAL_BASE_URL || '/api/ollama/';
+    const envModel = model2 ? import.meta.env.VITE_MODAL_MODEL2 : import.meta.env.VITE_MODAL_MODEL;
+    const model = modelOverride || envModel || 'nemotron-3-super:cloud';
     const url = `${baseUrl.endsWith('/') ? baseUrl : baseUrl + '/'}chat/completions`;
 
     const body = buildRequestBody(systemPrompt, userMessage, isJSON, model, true);
