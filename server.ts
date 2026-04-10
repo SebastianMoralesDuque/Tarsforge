@@ -53,6 +53,8 @@ app.use('/api/ollama', async (req, res) => {
       res.setHeader('Transfer-Encoding', 'chunked');
       res.setHeader('Cache-Control', 'no-cache');
       res.setHeader('Connection', 'keep-alive');
+      res.setHeader('X-Accel-Buffering', 'no');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
       res.flushHeaders();
 
       const reader = response.body.getReader();
