@@ -66,16 +66,27 @@ export async function streamOpenAI(apiKey, systemPrompt, userMessage, onChunk, i
             const cleanLine = line.trim();
             if (!cleanLine || cleanLine === 'data: [DONE]') continue;
 
+            let json = null;
+            let text = '';
+
             if (cleanLine.startsWith('data: ')) {
                 try {
-                    const json = JSON.parse(cleanLine.slice(6));
-                    const text = json?.choices?.[0]?.delta?.content || '';
+                    json = JSON.parse(cleanLine.slice(6));
+                } catch { /* ignore */ }
+            } else {
+                try {
+                    json = JSON.parse(cleanLine);
+                } catch { /* ignore */ }
+            }
 
-                    if (text) {
-                        fullText += text;
-                        onChunk?.(text, fullText);
-                    }
-                } catch { /* ignore streaming parse errors */ }
+            if (json) {
+                text = json?.choices?.[0]?.delta?.content || '';
+                if (!text) text = json?.message?.content || '';
+            }
+
+            if (text) {
+                fullText += text;
+                onChunk?.(text, fullText);
             }
         }
     }
