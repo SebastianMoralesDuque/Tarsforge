@@ -1,7 +1,16 @@
 # AGENTS.md - Tarsforge
 
 ## Project Overview
-Tarsforge is a React 19 + Vite + Tailwind CSS v4 application for AI agent orchestration. Uses an atomic design architecture with Context API for state management.
+
+Tarsforge is a React 19 + Vite + Tailwind CSS v4 application for AI agent orchestration. It generates landing pages by orchestrating multiple AI agents (via Ollama Cloud) that design, write, and build in real-time. Uses an atomic design architecture with Context API for state management.
+
+## Deployment
+
+**Live:** `https://tarsforge.sebastianmorales.sbs`
+
+Deployed via Coolify from GitHub repo `https://github.com/SebastianMoralesDuque/Tarsforge`. Every push to `main` triggers an automatic rebuild.
+
+**Contenedor:** `irc7frm8ahy75yh9wftn1hvd-XXXXXXXX` (imagen: `localhost:5000/tarsforge:COMMIT_HASH`)
 
 ## Commands
 
@@ -10,9 +19,36 @@ npm run dev       # Start dev server (localhost:5173)
 npm run build     # Production build to dist/
 npm run lint      # Run ESLint on all source files
 npm run preview   # Preview production build locally
+npm run server    # Start Express production server (port 3000)
+node tests/jsonParserTest.cjs  # Run JSON parser tests
 ```
 
-**Note:** No test framework is configured. The only test file is `tests/jsonParserTest.cjs` (run with `node tests/jsonParserTest.cjs`). To add tests, install Vitest (`npm i -D vitest`) and add `"test": "vitest"` to scripts.
+**Note:** No test framework configured. To add tests: `npm i -D vitest` and add `"test": "vitest"` to scripts.
+
+## Ollama Cloud Model
+
+**Single model:** `minimax-m2.7:cloud`
+
+### Configuration
+
+| File | Variable | Default |
+|------|----------|---------|
+| `.env` | `VITE_MODAL_MODEL` | `minimax-m2.7:cloud` |
+| `docker-compose.yml` | `VITE_MODAL_MODEL` | `minimax-m2.7:cloud` |
+| `server.ts` | fallback | `minimax-m2.7:cloud` |
+
+**Required env vars:**
+- `OLLAMA_API_KEY` — Ollama Cloud API key (from https://ollama.com/api)
+- `VITE_MODAL_MODEL` — Model name (defaults to `minimax-m2.7:cloud`)
+
+### How it works
+
+1. Frontend calls `/api/ollama/chat/completions` (OpenAI-compatible endpoint)
+2. Express `server.ts` proxies requests to `https://ollama.com/api/chat`
+3. Ollama Cloud API key (`OLLAMA_API_KEY`) authenticates the request
+4. Response is converted from Ollama format → OpenAI-compatible format
+
+**Local dev proxy:** Vite proxies `/proxy-modal` → `http://localhost:11434` (for local Ollama).
 
 ## Architecture
 
@@ -24,11 +60,13 @@ src/
   pages/        # Full page views (SetupPage, ConfigPage, RunPage, ComparePage)
   context/      # React Context + Provider (AppContext, AppProvider)
   hooks/        # Custom hooks (useGeminiAPI, useOrchestrator)
-  constants/    # Static data and config
-  api/          # API utility functions
-  utils/        # Helper functions
-  data/         # Static data files
+  constants/    # Static data and config (agents.js, skills.js)
+  api/          # API utilities (openaiClient.js, geminiClient.js, apiHelpers.js)
+  utils/        # Helpers (prompts, htmlExtractor, flowExecutor, etc.)
+  data/         # Static data (skills-library.js)
 ```
+
+**API flow:** `useGeminiAPI.js` → `openaiClient.js` (when `activeApi === 'modal'`) → Express proxy → Ollama Cloud
 
 ## Code Style
 
@@ -62,7 +100,7 @@ src/
 - Global state lives in `AppProvider.jsx` using `useState` + `useCallback`
 - Access via custom hook `useApp()` from `context/AppContext.js`
 - State shape defined in `context/AppConstants.js`
-- Persist API key to `localStorage`
+- Persist API key to `localStorage` under `tarsforge_api_key`
 
 ### Styling
 - **Tailwind CSS v4** via `@tailwindcss/vite` plugin
@@ -88,3 +126,20 @@ src/
 - No TypeScript; plain JavaScript with `.jsx` extension for React files
 - Proxy configured in `vite.config.js` for `/proxy-modal` → `http://localhost:11434`
 - API key stored in `localStorage` under `tarsforge_api_key`
+
+## Key Files
+
+| File | Purpose |
+|------|---------|
+| `server.ts` | Express proxy — converts Ollama Cloud → OpenAI-compatible API |
+| `src/api/openaiClient.js` | OpenAI-compatible client (call + streaming) for Ollama |
+| `src/hooks/useGeminiAPI.js` | Unified API hook — dispatches to openaiClient or geminiClient |
+| `src/hooks/useOrchestrator.js` | Orchestration engine — runs agents, manages runs |
+| `src/utils/prompts/` | Prompt templates for agents |
+| `src/data/skills-library.js` | Skill definitions for agents |
+
+## Dead Code (known)
+
+- `src/api/geminiClient.js` — Gemini API client, never called (activeApi defaults to 'modal')
+- `GEMINI_MODEL` constant in `src/constants/agents.js` — unused fallback
+- `src/pages/ConfigPage.jsx` — references "Gemini" in UI text (cosmetic only)

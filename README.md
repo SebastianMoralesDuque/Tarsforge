@@ -20,7 +20,7 @@ TarsForge es una **plataforma de generación de landing pages impulsada por inte
 | Crear landing pages requiere diseño, copy y código | Un solo prompt genera todo automáticamente |
 | Los generadores IA dan resultados genéricos | Agentes dinámicos + skills de diseño seleccionables |
 | No hay forma de comparar versiones | Comparador side-by-side con múltiples variaciones |
-| Dependencia de APIs costosas | Impulsado por **Ollama Cloud** — modelos open-source con límites generosos por token |
+| Dependencia de APIs costosas | Impulsado por **Ollama Cloud** — modelo `minimax-m2.7:cloud` open-source con límites generosos por token |
 
 ---
 
@@ -82,7 +82,7 @@ Selecciona las habilidades que quieres potenciar antes de generar:
    - ✅ **Sin costos de infraestructura** — Los créditos de CubePath cubrieron el hosting completo
    - ✅ **Control total** — Acceso root para instalar Ollama y configurar el entorno
    - ✅ **Modelos cloud open-source** — Ejecución de IA con límites generosos de API
-   - ✅ **Demo en vivo 24/7** — Los jueces pueden probar la app en cualquier momento
+   - ✅ **Demo en vivo 24/7** — Probá la app en [tarsforge.sebastianmorales.sbs](https://tarsforge.sebastianmorales.sbs) |
 
 ---
 
@@ -92,6 +92,19 @@ Selecciona las habilidades que quieres potenciar antes de generar:
 
 - **Node.js** >= 18.x
 - **npm** >= 9.x
+
+### Variables de Entorno
+
+Crea un archivo `.env` en la raíz del proyecto:
+
+```bash
+VITE_POLLINATIONS_KEY=pk_your_key           # Opcional: Pollinations API
+OLLAMA_API_KEY=your_ollama_cloud_key       # Requerido: Ollama Cloud API key
+VITE_MODAL_MODEL=minimax-m2.7:cloud        # Modelo Ollama Cloud
+VITE_UNSPLASH=your_unsplash_key            # Opcional: imágenes Unsplash
+```
+
+Para obtener la API key de Ollama Cloud: https://ollama.com/api
 
 ### Pasos
 
@@ -103,7 +116,10 @@ cd Tarsforge
 # 2. Instalar dependencias
 npm install
 
-# 3. Iniciar servidor de desarrollo
+# 3. Configurar variables de entorno
+cp .env.example .env  # o crear .env manualmente
+
+# 4. Iniciar servidor de desarrollo
 npm run dev
 ```
 
@@ -117,6 +133,7 @@ La aplicación estará disponible en `http://localhost:5173`.
 | `npm run build` | Build de producción optimizado |
 | `npm run preview` | Previsualiza el build de producción |
 | `npm run lint` | Ejecuta ESLint sobre todo el código |
+| `npm run server` | Inicia el servidor Express (producción) |
 
 ---
 
@@ -129,8 +146,8 @@ La aplicación estará disponible en `http://localhost:5173`.
 | **Estilos** | Tailwind CSS 4 + CSS Custom Properties |
 | **Grafo Visual** | @xyflow/react |
 | **Linting** | ESLint 9 |
-| **IA** | Ollama Cloud (modelos open-source) |
-| **Hosting** | VPS vía CubePath |
+| **IA** | Ollama Cloud — `minimax-m2.7:cloud` (modelo único unificado) |
+| **Hosting** | VPS vía Coolify (`tarsforge.sebastianmorales.sbs`) |
 
 ---
 
@@ -174,8 +191,8 @@ src/
 ## 🏆 Hackatón CubePath 2026
 
 > **Proyecto desarrollado para la Hackatón CubePath 2026**
->
-> Demo en vivo: [https://vps23087.cubepath.net/](https://vps23087.cubepath.net/)
+
+**Demo en vivo:** [https://tarsforge.sebastianmorales.sbs](https://tarsforge.sebastianmorales.sbs)
 
 ---
 
