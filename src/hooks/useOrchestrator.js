@@ -51,7 +51,7 @@ export function useOrchestrator() {
                     const builderSystem = getBuilderPrompt(runPlan.blueprint, mergedAssets, activeSkills, prompt);
 
                     let html = '';
-                    const builderModel = import.meta.env.VITE_MODAL_MODEL;
+                    const builderModel = import.meta.env.VITE_MODAL_MODEL2;
                     html = await streamAgent(
                         builderSystem,
                         `Genera el HTML completo de la landing page según el Blueprint proporcionado.`,

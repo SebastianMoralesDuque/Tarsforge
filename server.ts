@@ -1,9 +1,20 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const getDirname = () => {
+  if (typeof import.meta.url !== 'undefined' && import.meta.url.startsWith('file://')) {
+    return path.dirname(fileURLToPath(import.meta.url));
+  }
+  return process.cwd();
+};
+
+const __dirname = getDirname();
+
+console.log('__dirname resolved to:', __dirname);
+console.log('dist path:', path.join(__dirname, 'dist'));
+console.log('index.html exists:', fs.existsSync(path.join(__dirname, 'dist', 'index.html')));
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -38,23 +49,68 @@ app.use('/api/ollama', async (req, res) => {
     });
 
     if (body.stream) {
-      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Type', 'text/event-stream');
       res.setHeader('Transfer-Encoding', 'chunked');
       res.setHeader('Cache-Control', 'no-cache');
       res.setHeader('Connection', 'keep-alive');
+      res.flushHeaders();
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
+      let buffer = '';
 
       const stream = async () => {
         try {
           while (true) {
             const { done, value } = await reader.read();
             if (done) break;
-            res.write(decoder.decode(value, { stream: true }));
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || '';
+
+            for (const line of lines) {
+              const trimmed = line.trim();
+              if (!trimmed) continue;
+              try {
+                const ollamaChunk = JSON.parse(trimmed);
+                const openAIChunk = {
+                  id: `chatcmpl-${Date.now()}`,
+                  object: 'chat.completion.chunk',
+                  created: Math.floor(Date.now() / 1000),
+                  model: ollamaChunk.model || model,
+                  choices: [{
+                    index: 0,
+                    delta: {
+                      content: ollamaChunk.message?.content || '',
+                    },
+                    finish_reason: ollamaChunk.done ? 'stop' : null,
+                  }],
+                };
+                res.write(`data: ${JSON.stringify(openAIChunk)}\n`);
+              } catch { /* skip malformed JSON */ }
+            }
           }
+          if (buffer.trim()) {
+            try {
+              const ollamaChunk = JSON.parse(buffer.trim());
+              const openAIChunk = {
+                id: `chatcmpl-${Date.now()}`,
+                object: 'chat.completion.chunk',
+                created: Math.floor(Date.now() / 1000),
+                model: ollamaChunk.model || model,
+                choices: [{
+                  index: 0,
+                  delta: { content: ollamaChunk.message?.content || '' },
+                  finish_reason: ollamaChunk.done ? 'stop' : null,
+                }],
+              };
+              res.write(`data: ${JSON.stringify(openAIChunk)}\n`);
+            } catch { /* skip */ }
+          }
+          res.write('data: [DONE]\n');
           res.end();
         } catch (err) {
+          console.error('Stream error:', err.message);
           res.end();
         }
       };

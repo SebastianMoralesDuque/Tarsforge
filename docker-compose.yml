@@ -3,14 +3,15 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - '3000:3000'
+    expose:
+      - '3000'
     environment:
       - OLLAMA_API_KEY=${OLLAMA_API_KEY}
       - VITE_MODAL_MODEL=${VITE_MODAL_MODEL:-nemotron-3-super:cloud}
       - VITE_MODAL_MODEL2=${VITE_MODAL_MODEL2:-minimax-m2.7:cloud}
     labels:
       - traefik.enable=true
+      - traefik.docker.network=coolify
       - traefik.http.routers.tarsforge.rule=Host(`tarsforge.sebastianmorales.sbs`)
       - 'traefik.http.routers.tarsforge.entryPoints=http,https'
       - traefik.http.routers.tarsforge.tls=true
@@ -18,5 +19,8 @@ services:
     restart: unless-stopped
 
 networks:
+  default:
+    name: tarsforge_default
+    external: false
   coolify:
     external: true
