@@ -31,7 +31,7 @@ app.use('/api/ollama', async (req, res) => {
     }
 
     const body = req.body;
-    const model = body.model || 'nemotron-3-super:cloud';
+    const model = body.model || 'minimax-m2.7:cloud';
 
     const ollamaBody = {
       model,

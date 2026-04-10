@@ -5,7 +5,6 @@ const path = require('path');
 // CONFIG - matches .env
 // ============================================================
 const API_BASE_URL = process.env.VITE_MODAL_BASE_URL || 'http://localhost:11434/v1/';
-const API_KEY = process.env.VITE_MODAL_API_KEY || 'local';
 const MODEL = process.env.VITE_MODAL_MODEL || 'minimax-m2.7:cloud';
 
 // ============================================================

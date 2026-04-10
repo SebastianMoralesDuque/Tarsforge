@@ -7,8 +7,7 @@ services:
       - '3000'
     environment:
       - OLLAMA_API_KEY=${OLLAMA_API_KEY}
-      - VITE_MODAL_MODEL=${VITE_MODAL_MODEL:-nemotron-3-super:cloud}
-      - VITE_MODAL_MODEL2=${VITE_MODAL_MODEL2:-minimax-m2.7:cloud}
+      - VITE_MODAL_MODEL=${VITE_MODAL_MODEL:-minimax-m2.7:cloud}
     labels:
       - traefik.enable=true
       - traefik.docker.network=coolify
