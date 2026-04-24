@@ -22,6 +22,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 
 const OLLAMA_API_KEY = process.env.OLLAMA_API_KEY;
+const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'minimax-m2.7:cloud';
 
 app.use('/api/ollama', async (req, res) => {
   try {
@@ -31,7 +32,7 @@ app.use('/api/ollama', async (req, res) => {
     }
 
     const body = req.body;
-    const model = body.model || 'minimax-m2.7:cloud';
+    const model = body.model || OLLAMA_MODEL;
 
     const ollamaBody = {
       model,
